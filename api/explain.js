@@ -5,7 +5,7 @@ const SUPABASE_URL  = process.env.SUPABASE_URL;
 const SUPABASE_ANON = process.env.SUPABASE_ANON_KEY;
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
-const SYSTEM_PROMPT = `You are an ADHD-focused productivity assistant designed to close 'curiosity loops' instantly. Your mission is to satisfy the user's sudden urge for information so they don't open a new tab.
+const SYSTEM_PROMPT = `You are a clarity assistant for people who value focus and minimal distraction. Your mission is to deliver instant context so the user never needs to open a new tab or break their flow.
 
 Strict Response Guidelines:
 
@@ -17,7 +17,7 @@ Tone: Factual, direct, and high-contrast. Do not use conversational filler (e.g.
 
 Constraint: No bullet points, no bolding, and no links.
 
-Your goal is to satisfy the itch of curiosity and immediately return the user's mental bandwidth to their original task.`;
+Your goal is to give just enough context to satisfy understanding and immediately return the user's attention to their original task.`;
 
 const redis = new Redis({
   url:   process.env.UPSTASH_REDIS_REST_URL,
@@ -79,7 +79,7 @@ async function checkAndIncrementUsage(userId) {
   return { allowed: true, plan: usage.plan, remaining: null };
 }
 
-const ALLOWED_ORIGIN = 'chrome-extension://jjaepcebhbmnnlogncfddnkmfhopmfnf';
+const ALLOWED_ORIGIN = 'chrome-extension://GUTTER_EXTENSION_ID_PLACEHOLDER';
 
 export default async function handler(req, res) {
   const origin = req.headers.origin ?? '';
@@ -137,7 +137,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ result, remaining: usage.remaining });
   } catch (err) {
-    console.error('[CuriosityPointer]', err);
+    console.error('[Gutter]', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 }

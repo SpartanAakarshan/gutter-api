@@ -3,8 +3,8 @@ const KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
 const PLAN_ID    = process.env.RAZORPAY_PLAN_ID;
 
 const ALLOWED_ORIGINS = [
-  'chrome-extension://jjaepcebhbmnnlogncfddnkmfhopmfnf',
-  'https://curiosity-pointer-api.vercel.app'
+  'chrome-extension://GUTTER_EXTENSION_ID_PLACEHOLDER',
+  'https://gutter-api.vercel.app'
 ];
 
 export default async function handler(req, res) {
@@ -45,7 +45,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ subscription_id: data.id, key_id: KEY_ID });
   } catch (err) {
-    console.error('[CuriosityPointer] checkout error:', err);
+    console.error('[Gutter] checkout error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 }
