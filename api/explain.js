@@ -78,9 +78,11 @@ export default async function handler(req, res) {
   const user = await getUser(token);
   if (!user?.id) return res.status(401).json({ error: 'Invalid or expired session' });
 
-  const { success } = await ratelimit.limit(user.id);
-  if (!success) {
-    return res.status(429).json({ error: 'Too many requests. Wait a minute.' });
+  try {
+    const { success } = await ratelimit.limit(user.id);
+    if (!success) return res.status(429).json({ error: 'Too many requests. Wait a minute.' });
+  } catch (e) {
+    console.error('[Gutter] ratelimit error', e.message);
   }
 
   const { text } = req.body;
