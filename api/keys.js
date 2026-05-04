@@ -44,8 +44,11 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     const { apiKey, provider = 'gemini' } = req.body;
-    if (!apiKey || typeof apiKey !== 'string' || apiKey.trim().length < 10) {
+    if (!apiKey || typeof apiKey !== 'string' || apiKey.trim().length < 10 || apiKey.trim().length > 200) {
       return res.status(400).json({ error: 'Invalid API key' });
+    }
+    if (!['gemini', 'openai', 'claude', 'grok'].includes(provider)) {
+      return res.status(400).json({ error: 'Invalid provider' });
     }
 
     await fetch(`${SUPABASE_URL}/rest/v1/user_api_keys`, {
