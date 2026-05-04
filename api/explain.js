@@ -1,9 +1,10 @@
 import { Redis } from '@upstash/redis';
 import { Ratelimit } from '@upstash/ratelimit';
+import { decrypt } from './_crypto.js';
 
 const SUPABASE_URL  = process.env.SUPABASE_URL;
 const SUPABASE_ANON = process.env.SUPABASE_ANON_KEY;
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`;
+const GEMINI_BASE   = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent';
 
 const SYSTEM_PROMPT = `You are a clarity assistant for people who value focus and minimal distraction. Your mission is to deliver instant context so the user never needs to open a new tab or break their flow.
 
@@ -30,8 +31,6 @@ const ratelimit = new Ratelimit({
   prefix:  'cp:rl',
 });
 
-const FREE_LIMIT = 15;
-
 async function getUser(token) {
   const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
     headers: {
@@ -43,40 +42,19 @@ async function getUser(token) {
   return res.json();
 }
 
-async function checkAndIncrementUsage(userId) {
-  const headers = {
-    'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
-    'apikey': process.env.SUPABASE_SERVICE_KEY,
-    'Content-Type': 'application/json'
-  };
-
-  // Ensure row exists
-  await fetch(`${SUPABASE_URL}/rest/v1/users_usage`, {
-    method: 'POST',
-    headers: { ...headers, 'Prefer': 'resolution=ignore-duplicates' },
-    body: JSON.stringify({ user_id: userId })
-  });
-
-  // Get current usage
-  const r = await fetch(
-    `${SUPABASE_URL}/rest/v1/users_usage?user_id=eq.${userId}&select=total_requests,plan`,
-    { headers }
+async function getUserApiKey(userId) {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/user_api_keys?user_id=eq.${userId}&select=encrypted_key,provider&limit=1`,
+    {
+      headers: {
+        'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
+        'apikey':        process.env.SUPABASE_SERVICE_KEY
+      }
+    }
   );
-  const [usage] = await r.json();
-
-  // Free launch — limit disabled, usage still tracked
-  // if (usage.plan === 'free' && usage.total_requests >= FREE_LIMIT) {
-  //   return { allowed: false, plan: 'free', total: usage.total_requests };
-  // }
-
-  // Increment
-  await fetch(`${SUPABASE_URL}/rest/v1/users_usage?user_id=eq.${userId}`, {
-    method: 'PATCH',
-    headers,
-    body: JSON.stringify({ total_requests: usage.total_requests + 1 })
-  });
-
-  return { allowed: true, plan: usage.plan, remaining: null };
+  const [row] = await res.json();
+  if (!row) return null;
+  return { key: decrypt(row.encrypted_key), provider: row.provider };
 }
 
 const ALLOWED_ORIGIN = 'chrome-extension://GUTTER_EXTENSION_ID_PLACEHOLDER';
@@ -110,16 +88,17 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid text' });
   }
 
-  const usage = await checkAndIncrementUsage(user.id);
-  if (!usage.allowed) {
+  const userKey = await getUserApiKey(user.id);
+  if (!userKey) {
     return res.status(402).json({
-      error: 'UPGRADE_REQUIRED',
-      message: `Free limit of ${FREE_LIMIT} searches reached. Upgrade for $5/month.`
+      error: 'NO_API_KEY',
+      message: 'No API key configured. Add your Gemini API key in extension settings.'
     });
   }
 
   try {
-    const r = await fetch(API_URL, {
+    const apiUrl = `${GEMINI_BASE}?key=${userKey.key}`;
+    const r = await fetch(apiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -129,13 +108,17 @@ export default async function handler(req, res) {
     });
 
     const data = await r.json();
-    if (data.error) return res.status(502).json({ error: `Gemini error: ${data.error.message}` });
+    if (data.error) {
+      const msg = data.error.message ?? 'Unknown Gemini error';
+      const status = data.error.code === 400 ? 400 : 502;
+      return res.status(status).json({ error: `Gemini: ${msg}` });
+    }
 
     const parts = data.candidates?.[0]?.content?.parts ?? [];
     const result = parts.find(p => !p.thought)?.text?.trim();
     if (!result) return res.status(502).json({ error: 'No response from Gemini' });
 
-    return res.status(200).json({ result, remaining: usage.remaining });
+    return res.status(200).json({ result });
   } catch (err) {
     console.error('[Gutter]', err);
     return res.status(500).json({ error: 'Internal server error' });
