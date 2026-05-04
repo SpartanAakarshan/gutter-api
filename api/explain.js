@@ -27,19 +27,22 @@ Constraint: No bullet points, no bolding, and no links.
 Your goal is to give just enough context to satisfy understanding and immediately return the user's attention to their original task.`;
 
 
+function fetchWithTimeout(url, options, ms = 7000) {
+  const ctrl = new AbortController();
+  const id = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { ...options, signal: ctrl.signal }).finally(() => clearTimeout(id));
+}
+
 async function getUser(token) {
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'apikey': SUPABASE_ANON
-    }
+  const res = await fetchWithTimeout(`${SUPABASE_URL}/auth/v1/user`, {
+    headers: { 'Authorization': `Bearer ${token}`, 'apikey': SUPABASE_ANON }
   });
   if (!res.ok) return null;
   return res.json();
 }
 
 async function getUserApiKey(userId) {
-  const res = await fetch(
+  const res = await fetchWithTimeout(
     `${SUPABASE_URL}/rest/v1/user_api_keys?user_id=eq.${userId}&select=encrypted_key,provider&limit=1`,
     {
       headers: {
