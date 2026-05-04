@@ -2,7 +2,7 @@ import { encrypt } from './_crypto.js';
 
 const SUPABASE_URL  = process.env.SUPABASE_URL;
 const SUPABASE_ANON = process.env.SUPABASE_ANON_KEY;
-const ALLOWED_ORIGIN = 'chrome-extension://GUTTER_EXTENSION_ID_PLACEHOLDER';
+const ALLOWED_ORIGIN = 'chrome-extension://oieikdhmaagmijgidipmkemgaaghjdkg';
 
 async function getUser(token) {
   const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {

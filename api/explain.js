@@ -57,7 +57,7 @@ async function getUserApiKey(userId) {
   return { key: decrypt(row.encrypted_key), provider: row.provider };
 }
 
-const ALLOWED_ORIGIN = 'chrome-extension://GUTTER_EXTENSION_ID_PLACEHOLDER';
+const ALLOWED_ORIGIN = 'chrome-extension://oieikdhmaagmijgidipmkemgaaghjdkg';
 
 export default async function handler(req, res) {
   const origin = req.headers.origin ?? '';
