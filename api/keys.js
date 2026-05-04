@@ -1,4 +1,12 @@
-import { encrypt } from './_crypto.js';
+import { createCipheriv, randomBytes } from 'crypto';
+
+function encrypt(text) {
+  const key = Buffer.from((process.env.ENCRYPTION_KEY ?? '').trim(), 'hex');
+  const iv  = randomBytes(12);
+  const cipher = createCipheriv('aes-256-gcm', key, iv);
+  const enc = Buffer.concat([cipher.update(text, 'utf8'), cipher.final()]);
+  return [iv.toString('hex'), cipher.getAuthTag().toString('hex'), enc.toString('hex')].join(':');
+}
 
 const SUPABASE_URL  = process.env.SUPABASE_URL;
 const SUPABASE_ANON = process.env.SUPABASE_ANON_KEY;

@@ -1,6 +1,14 @@
 import { Redis } from '@upstash/redis';
 import { Ratelimit } from '@upstash/ratelimit';
-import { decrypt } from './_crypto.js';
+import { createDecipheriv } from 'crypto';
+
+function decrypt(ciphertext) {
+  const key = Buffer.from((process.env.ENCRYPTION_KEY ?? '').trim(), 'hex');
+  const [ivHex, tagHex, encHex] = ciphertext.split(':');
+  const decipher = createDecipheriv('aes-256-gcm', key, Buffer.from(ivHex, 'hex'));
+  decipher.setAuthTag(Buffer.from(tagHex, 'hex'));
+  return Buffer.concat([decipher.update(Buffer.from(encHex, 'hex')), decipher.final()]).toString('utf8');
+}
 
 const SUPABASE_URL  = process.env.SUPABASE_URL;
 const SUPABASE_ANON = process.env.SUPABASE_ANON_KEY;
