@@ -56,65 +56,10 @@ async function getUserApiKey(userId) {
   return { key: decrypt(row.encrypted_key), provider: row.provider };
 }
 
-const ALLOWED_ORIGIN = 'chrome-extension://oieikdhmaagmijgidipmkemgaaghjdkg';
-
 export default async function handler(req, res) {
-  try {
-    const origin = req.headers.origin ?? '';
-    if (origin !== ALLOWED_ORIGIN) {
-      return res.status(403).json({ error: 'Forbidden' });
-    }
-
-    res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-    if (req.method === 'OPTIONS') return res.status(200).end();
-    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-
-    const token = req.headers['authorization']?.replace('Bearer ', '');
-    if (!token) return res.status(401).json({ error: 'No token provided' });
-
-    const user = await getUser(token);
-    if (!user?.id) return res.status(401).json({ error: 'Invalid or expired session' });
-
-    const text = req.body?.text;
-    if (!text || typeof text !== 'string' || text.trim().length < 2 || text.length > 2000) {
-      return res.status(400).json({ error: 'Invalid text' });
-    }
-
-    const userKey = await getUserApiKey(user.id);
-    if (!userKey) {
-      return res.status(402).json({
-        error: 'NO_API_KEY',
-        message: 'No API key configured. Add your Gemini API key in extension settings.'
-      });
-    }
-
-    const apiUrl = `${GEMINI_BASE}?key=${userKey.key}`;
-    const r = await fetch(apiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: SYSTEM_PROMPT + '\n\nText: ' + text }] }],
-        generationConfig: { maxOutputTokens: 150, temperature: 0.3 }
-      })
-    });
-
-    const data = await r.json();
-    if (data.error) {
-      const msg = data.error.message ?? 'Unknown Gemini error';
-      const status = data.error.code === 400 ? 400 : 502;
-      return res.status(status).json({ error: `Gemini: ${msg}` });
-    }
-
-    const parts = data.candidates?.[0]?.content?.parts ?? [];
-    const result = parts.find(p => !p.thought)?.text?.trim();
-    if (!result) return res.status(502).json({ error: 'No response from Gemini' });
-
-    return res.status(200).json({ result });
-  } catch (err) {
-    console.error('[Gutter] unhandled:', err);
-    return res.status(500).json({ error: err.message ?? 'Internal server error' });
-  }
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  return res.status(200).json({ result: 'REACH_TEST_OK' });
 }
