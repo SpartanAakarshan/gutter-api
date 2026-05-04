@@ -60,45 +60,45 @@ async function getUserApiKey(userId) {
 const ALLOWED_ORIGIN = 'chrome-extension://oieikdhmaagmijgidipmkemgaaghjdkg';
 
 export default async function handler(req, res) {
-  const origin = req.headers.origin ?? '';
-  if (origin !== ALLOWED_ORIGIN) {
-    return res.status(403).json({ error: 'Forbidden' });
-  }
-
-  res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-
-  const token = req.headers['authorization']?.replace('Bearer ', '');
-  if (!token) return res.status(401).json({ error: 'No token provided' });
-
-  const user = await getUser(token);
-  if (!user?.id) return res.status(401).json({ error: 'Invalid or expired session' });
-
   try {
-    const { success } = await ratelimit.limit(user.id);
-    if (!success) return res.status(429).json({ error: 'Too many requests. Wait a minute.' });
-  } catch (e) {
-    console.error('[Gutter] ratelimit error', e.message);
-  }
+    const origin = req.headers.origin ?? '';
+    if (origin !== ALLOWED_ORIGIN) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
 
-  const { text } = req.body;
-  if (!text || typeof text !== 'string' || text.trim().length < 2 || text.length > 2000) {
-    return res.status(400).json({ error: 'Invalid text' });
-  }
+    res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-  const userKey = await getUserApiKey(user.id);
-  if (!userKey) {
-    return res.status(402).json({
-      error: 'NO_API_KEY',
-      message: 'No API key configured. Add your Gemini API key in extension settings.'
-    });
-  }
+    if (req.method === 'OPTIONS') return res.status(200).end();
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  try {
+    const token = req.headers['authorization']?.replace('Bearer ', '');
+    if (!token) return res.status(401).json({ error: 'No token provided' });
+
+    const user = await getUser(token);
+    if (!user?.id) return res.status(401).json({ error: 'Invalid or expired session' });
+
+    try {
+      const { success } = await ratelimit.limit(user.id);
+      if (!success) return res.status(429).json({ error: 'Too many requests. Wait a minute.' });
+    } catch (e) {
+      console.error('[Gutter] ratelimit error', e.message);
+    }
+
+    const text = req.body?.text;
+    if (!text || typeof text !== 'string' || text.trim().length < 2 || text.length > 2000) {
+      return res.status(400).json({ error: 'Invalid text' });
+    }
+
+    const userKey = await getUserApiKey(user.id);
+    if (!userKey) {
+      return res.status(402).json({
+        error: 'NO_API_KEY',
+        message: 'No API key configured. Add your Gemini API key in extension settings.'
+      });
+    }
+
     const apiUrl = `${GEMINI_BASE}?key=${userKey.key}`;
     const r = await fetch(apiUrl, {
       method: 'POST',
@@ -122,7 +122,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ result });
   } catch (err) {
-    console.error('[Gutter]', err);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('[Gutter] unhandled:', err);
+    return res.status(500).json({ error: err.message ?? 'Internal server error' });
   }
 }
