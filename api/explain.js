@@ -1,5 +1,3 @@
-import { Redis } from '@upstash/redis';
-import { Ratelimit } from '@upstash/ratelimit';
 import { createDecipheriv } from 'crypto';
 
 function decrypt(ciphertext) {
@@ -28,16 +26,6 @@ Constraint: No bullet points, no bolding, and no links.
 
 Your goal is to give just enough context to satisfy understanding and immediately return the user's attention to their original task.`;
 
-const redis = new Redis({
-  url:   process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-});
-
-const ratelimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(30, '1 m'),
-  prefix:  'cp:rl',
-});
 
 async function getUser(token) {
   const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
@@ -86,13 +74,6 @@ export default async function handler(req, res) {
 
     const user = await getUser(token);
     if (!user?.id) return res.status(401).json({ error: 'Invalid or expired session' });
-
-    try {
-      const { success } = await ratelimit.limit(user.id);
-      if (!success) return res.status(429).json({ error: 'Too many requests. Wait a minute.' });
-    } catch (e) {
-      console.error('[Gutter] ratelimit error', e.message);
-    }
 
     const text = req.body?.text;
     if (!text || typeof text !== 'string' || text.trim().length < 2 || text.length > 2000) {
