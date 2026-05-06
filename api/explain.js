@@ -1,8 +1,13 @@
 import { createDecipheriv } from 'crypto';
+import { Redis } from '@upstash/redis';
+
+const FREE_LIMIT = 20;
 
 function decrypt(ciphertext) {
+  const parts = (ciphertext ?? '').split(':');
+  if (parts.length !== 3 || parts.some(p => !p)) throw new Error('Malformed ciphertext');
+  const [ivHex, tagHex, encHex] = parts;
   const key = Buffer.from((process.env.ENCRYPTION_KEY ?? '').trim(), 'hex');
-  const [ivHex, tagHex, encHex] = ciphertext.split(':');
   const decipher = createDecipheriv('aes-256-gcm', key, Buffer.from(ivHex, 'hex'));
   decipher.setAuthTag(Buffer.from(tagHex, 'hex'));
   return Buffer.concat([decipher.update(Buffer.from(encHex, 'hex')), decipher.final()]).toString('utf8');
@@ -40,6 +45,7 @@ async function getUser(token) {
 }
 
 async function getUserApiKey(userId) {
+  if (!/^[0-9a-f-]{36}$/i.test(userId)) return null;
   const res = await fetchWithTimeout(
     `${SUPABASE_URL}/rest/v1/user_api_keys?user_id=eq.${userId}&select=encrypted_key,provider&limit=1`,
     {
@@ -164,18 +170,51 @@ export default async function handler(req, res) {
     const user = await getUser(token);
     if (!user?.id) return res.status(401).json({ error: 'Invalid session' });
 
-    const apiKeyData = await getUserApiKey(user.id);
-    if (!apiKeyData) return res.status(403).json({ error: 'NO_API_KEY', message: 'Add your API key in the extension options.' });
-
     const text = typeof req.body === 'object' ? req.body?.text : JSON.parse(req.body ?? '{}').text;
     if (!text || typeof text !== 'string') return res.status(400).json({ error: 'No text provided' });
     if (text.length > 2000) return res.status(400).json({ error: 'Text too long' });
 
-    const result = await callAI(apiKeyData.provider, apiKeyData.key, text);
+    const apiKeyData = await getUserApiKey(user.id);
+
+    let provider, apiKey, remaining = null;
+
+    if (apiKeyData) {
+      // User has own key — unlimited
+      provider = apiKeyData.provider;
+      apiKey   = apiKeyData.key;
+    } else {
+      // Free tier — rate limit against owner's Gemini key
+      const redis = new Redis({
+        url:   process.env.UPSTASH_REDIS_REST_URL,
+        token: process.env.UPSTASH_REDIS_REST_TOKEN
+      });
+
+      const date    = new Date().toISOString().slice(0, 10); // YYYY-MM-DD UTC
+      const redisKey = `free:${user.id}:${date}`;
+
+      const pipe = redis.pipeline();
+      pipe.incr(redisKey);
+      pipe.expire(redisKey, 90000);
+      const [count] = await pipe.exec();
+
+      if (count > FREE_LIMIT) {
+        return res.status(429).json({
+          error: 'NO_API_KEY',
+          message: `You've hit the daily limit. Add your API key in options — it's free to get one.`
+        });
+      }
+
+      provider  = 'gemini';
+      apiKey    = process.env.OWNER_GEMINI_KEY;
+      remaining = FREE_LIMIT - count;
+    }
+
+    const result = await callAI(provider, apiKey, text);
     if (!result) return res.status(502).json({ error: 'Empty response from AI' });
 
-    return res.status(200).json({ result });
+    return res.status(200).json({ result, ...(remaining !== null && { remaining }) });
   } catch (err) {
-    return res.status(500).json({ error: err.message ?? 'Internal error' });
+    const msg = (err.message ?? '').slice(0, 120);
+    return res.status(500).json({ error: msg || 'Internal error' });
   }
 }

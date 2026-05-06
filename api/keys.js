@@ -8,12 +8,18 @@ function encrypt(text) {
   return [iv.toString('hex'), cipher.getAuthTag().toString('hex'), enc.toString('hex')].join(':');
 }
 
-const SUPABASE_URL  = process.env.SUPABASE_URL;
-const SUPABASE_ANON = process.env.SUPABASE_ANON_KEY;
+const SUPABASE_URL   = process.env.SUPABASE_URL;
+const SUPABASE_ANON  = process.env.SUPABASE_ANON_KEY;
 const ALLOWED_ORIGIN = 'chrome-extension://oieikdhmaagmijgidipmkemgaaghjdkg';
 
+function fetchWithTimeout(url, options, ms = 7000) {
+  const ctrl = new AbortController();
+  const id = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { ...options, signal: ctrl.signal }).finally(() => clearTimeout(id));
+}
+
 async function getUser(token) {
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+  const res = await fetchWithTimeout(`${SUPABASE_URL}/auth/v1/user`, {
     headers: { 'Authorization': `Bearer ${token}`, 'apikey': SUPABASE_ANON }
   });
   if (!res.ok) return null;
@@ -30,43 +36,60 @@ export default async function handler(req, res) {
 
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const token = req.headers['authorization']?.replace('Bearer ', '');
-  if (!token) return res.status(401).json({ error: 'No token' });
+  try {
+    const token = req.headers['authorization']?.replace('Bearer ', '');
+    if (!token) return res.status(401).json({ error: 'No token' });
 
-  const user = await getUser(token);
-  if (!user?.id) return res.status(401).json({ error: 'Invalid session' });
+    const user = await getUser(token);
+    if (!user?.id) return res.status(401).json({ error: 'Invalid session' });
 
-  const headers = {
-    'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
-    'apikey':        process.env.SUPABASE_SERVICE_KEY,
-    'Content-Type':  'application/json'
-  };
+    const headers = {
+      'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
+      'apikey':        process.env.SUPABASE_SERVICE_KEY,
+      'Content-Type':  'application/json'
+    };
 
-  if (req.method === 'POST') {
-    const { apiKey, provider = 'gemini' } = req.body;
-    if (!apiKey || typeof apiKey !== 'string' || apiKey.trim().length < 10 || apiKey.trim().length > 200) {
-      return res.status(400).json({ error: 'Invalid API key' });
+    if (req.method === 'POST') {
+      const { apiKey, provider = 'gemini' } = req.body;
+      if (!apiKey || typeof apiKey !== 'string' || apiKey.trim().length < 10 || apiKey.trim().length > 200) {
+        return res.status(400).json({ error: 'Invalid API key' });
+      }
+      if (!['gemini', 'openai', 'claude', 'grok'].includes(provider)) {
+        return res.status(400).json({ error: 'Invalid provider' });
+      }
+
+      const encrypted = encrypt(apiKey.trim());
+
+      // Delete first, then insert — if insert fails, user knows to re-add
+      const delRes = await fetchWithTimeout(
+        `${SUPABASE_URL}/rest/v1/user_api_keys?user_id=eq.${user.id}`,
+        { method: 'DELETE', headers }
+      );
+      if (!delRes.ok && delRes.status !== 404) {
+        return res.status(502).json({ error: 'Failed to clear existing key. Try again.' });
+      }
+
+      const insRes = await fetchWithTimeout(
+        `${SUPABASE_URL}/rest/v1/user_api_keys`,
+        { method: 'POST', headers, body: JSON.stringify({ user_id: user.id, encrypted_key: encrypted, provider }) }
+      );
+      if (!insRes.ok) {
+        return res.status(502).json({ error: 'Failed to save key. Try again.' });
+      }
+
+      return res.status(200).json({ success: true, provider });
     }
-    if (!['gemini', 'openai', 'claude', 'grok'].includes(provider)) {
-      return res.status(400).json({ error: 'Invalid provider' });
+
+    if (req.method === 'DELETE') {
+      await fetchWithTimeout(
+        `${SUPABASE_URL}/rest/v1/user_api_keys?user_id=eq.${user.id}`,
+        { method: 'DELETE', headers }
+      );
+      return res.status(200).json({ success: true });
     }
 
-    await fetch(`${SUPABASE_URL}/rest/v1/user_api_keys`, {
-      method: 'POST',
-      headers: { ...headers, 'Prefer': 'resolution=merge-duplicates' },
-      body: JSON.stringify({ user_id: user.id, encrypted_key: encrypt(apiKey.trim()), provider })
-    });
-
-    return res.status(200).json({ success: true });
+    return res.status(405).json({ error: 'Method not allowed' });
+  } catch (err) {
+    return res.status(500).json({ error: 'Internal error' });
   }
-
-  if (req.method === 'DELETE') {
-    await fetch(`${SUPABASE_URL}/rest/v1/user_api_keys?user_id=eq.${user.id}`, {
-      method: 'DELETE',
-      headers
-    });
-    return res.status(200).json({ success: true });
-  }
-
-  return res.status(405).json({ error: 'Method not allowed' });
 }

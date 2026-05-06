@@ -7,40 +7,29 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <meta name="description" content="Alt+Click any heading or text for instant context. No new tabs. No rabbit holes. Stay in flow.">
   <style>
-    :root {
-      --bg:      #03030f;
-      --surface: #0a0a20;
-      --border:  #2a2a7a;
-      --accent:  #6e6eff;
-      --dim:     #8888cc;
-      --text:    #d4d4ff;
-      --muted:   #aaaadd;
-      --white:   #ffffff;
-    }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: var(--bg);
-      color: var(--text);
+      background: #000000;
+      color: #ffffff;
       font-family: 'Courier New', Courier, monospace;
       font-size: 14px;
       line-height: 1.9;
     }
 
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
+    a { color: #ffffff; text-decoration: underline; }
+    a:hover { opacity: 0.6; }
 
     .container {
-      max-width: 720px;
+      max-width: 680px;
       margin: 0 auto;
       padding: 0 24px;
     }
 
     /* NAV */
     nav {
-      border-bottom: 1px solid var(--border);
-      padding: 16px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding: 18px 0;
     }
     nav .container {
       display: flex;
@@ -50,134 +39,132 @@
     .logo {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       font-size: 11px;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.25em;
       text-transform: uppercase;
-      color: var(--accent);
+      color: #ffffff;
+      text-decoration: none;
     }
-    .logo img {
-      width: 24px;
-      height: 24px;
-      border-radius: 5px;
-    }
-    .nav-links { display: flex; gap: 24px; }
+    .logo img { width: 22px; height: 22px; }
+    .nav-links { display: flex; gap: 28px; }
     .nav-links a {
       font-size: 10px;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: var(--dim);
+      color: rgba(255,255,255,0.4);
+      text-decoration: none;
     }
-    .nav-links a:hover { color: var(--white); text-decoration: none; }
+    .nav-links a:hover { color: #ffffff; opacity: 1; }
 
     /* SECTIONS */
-    section { padding: 64px 0; border-bottom: 1px solid var(--border); }
-    section:last-child { border-bottom: none; }
+    section { padding: 72px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    section:last-of-type { border-bottom: none; }
 
     .tag {
-      display: inline-block;
+      display: block;
       font-size: 10px;
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: var(--dim);
+      color: rgba(255,255,255,0.35);
       margin-bottom: 20px;
     }
-    .tag::before { content: '// '; }
 
     h1 {
-      font-size: clamp(22px, 4vw, 32px);
-      color: var(--white);
-      line-height: 1.3;
-      margin-bottom: 20px;
+      font-size: clamp(24px, 4vw, 36px);
+      color: #ffffff;
+      line-height: 1.25;
+      margin-bottom: 24px;
+      font-weight: normal;
       letter-spacing: -0.01em;
     }
     h2 {
-      font-size: 16px;
-      color: var(--white);
-      letter-spacing: 0.05em;
+      font-size: 13px;
+      color: #ffffff;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
       margin-bottom: 32px;
+      font-weight: normal;
     }
 
     .hero-sub {
       font-size: 13px;
-      color: var(--muted);
+      color: rgba(255,255,255,0.55);
       max-width: 520px;
-      margin-bottom: 40px;
+      margin-bottom: 44px;
+      line-height: 2;
     }
 
     /* CTA */
     .btn {
       display: inline-block;
-      background: var(--surface);
-      border: 1px solid var(--accent);
-      color: var(--text);
+      background: #ffffff;
+      color: #000000;
       font-family: 'Courier New', Courier, monospace;
       font-size: 11px;
       letter-spacing: 0.15em;
       text-transform: uppercase;
       padding: 12px 28px;
       cursor: pointer;
-      transition: background 0.15s;
+      text-decoration: none;
+      border: 1px solid #ffffff;
     }
-    .btn:hover { background: #111144; text-decoration: none; }
+    .btn:hover { background: rgba(255,255,255,0.85); opacity: 1; }
     .btn-ghost {
-      border-color: var(--border);
-      color: var(--muted);
+      background: none;
+      color: rgba(255,255,255,0.6);
+      border: 1px solid rgba(255,255,255,0.2);
     }
-    .btn-ghost:hover { border-color: var(--dim); color: var(--text); }
+    .btn-ghost:hover { background: rgba(255,255,255,0.05); color: #ffffff; opacity: 1; border-color: rgba(255,255,255,0.5); }
 
     .cta-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-    .cta-note { font-size: 10px; color: var(--dim); margin-top: 12px; }
+    .cta-note { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 14px; letter-spacing: 0.05em; }
 
-    /* DEMO BLOCK */
+    /* DEMO */
     .demo {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 20px 24px;
-      margin: 40px 0;
+      background: #000000;
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 24px;
+      margin-top: 48px;
       position: relative;
     }
     .demo-label {
       position: absolute;
-      top: -1px;
+      top: 0;
       left: 16px;
       font-size: 9px;
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: var(--dim);
-      background: var(--surface);
+      color: rgba(255,255,255,0.3);
+      background: #000000;
       padding: 0 6px;
       transform: translateY(-50%);
     }
     .demo-body {
-      color: var(--text);
-      font-size: 14px;
-      line-height: 2;
-      margin-bottom: 12px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 12px;
-      user-select: none;
+      color: rgba(255,255,255,0.7);
+      font-size: 13px;
+      line-height: 2.1;
+      margin-bottom: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding-bottom: 14px;
     }
     .demo-phrase {
       cursor: pointer;
-      border-bottom: 1px dashed var(--border);
-      transition: color 0.15s, border-color 0.15s;
+      border-bottom: 1px solid rgba(255,255,255,0.25);
+      transition: color 0.1s, border-color 0.1s;
     }
-    .demo-phrase:hover { color: var(--white); border-color: var(--accent); }
-    .demo-phrase.active { color: var(--accent); border-color: var(--accent); }
+    .demo-phrase:hover { color: #ffffff; border-color: rgba(255,255,255,0.7); }
+    .demo-phrase.active { color: #ffffff; border-color: #ffffff; }
     .demo-hint {
       font-size: 10px;
-      color: var(--dim);
-      margin-bottom: 12px;
+      color: rgba(255,255,255,0.25);
+      margin-bottom: 14px;
       letter-spacing: 0.05em;
     }
     .demo-tooltip {
-      background: #03030f;
-      border: 1px solid var(--accent);
-      border-radius: 2px;
+      background: #000000;
+      border: 1px solid rgba(255,255,255,0.15);
       padding: 12px 14px;
-      margin-top: 4px;
-      box-shadow: 0 0 12px rgba(110,110,255,0.25);
       font-size: 12px;
       display: none;
     }
@@ -186,74 +173,62 @@
       font-size: 9px;
       letter-spacing: 0.25em;
       text-transform: uppercase;
-      color: var(--dim);
+      color: rgba(255,255,255,0.3);
       margin-bottom: 8px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
       padding-bottom: 6px;
     }
-    .demo-tooltip-text { color: var(--text); line-height: 1.8; }
+    .demo-tooltip-text { color: rgba(255,255,255,0.85); line-height: 1.8; }
 
-    /* FEATURES */
-    .features { display: flex; flex-direction: column; gap: 24px; }
-    .feature {
+    /* HOW IT WORKS */
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step {
       display: grid;
-      grid-template-columns: 120px 1fr;
-      gap: 16px;
+      grid-template-columns: 40px 1fr;
+      gap: 20px;
       align-items: start;
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
     }
-    .feature-key {
+    .step:last-child { border-bottom: none; }
+    .step-num {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.2);
+      padding-top: 3px;
+    }
+    .step-text { color: rgba(255,255,255,0.7); font-size: 13px; }
+    .step-text strong { color: #ffffff; font-weight: normal; }
+
+    /* SECURITY SECTION */
+    .security-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .security-item {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 20px;
+      padding: 18px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-size: 13px;
+    }
+    .security-item:last-child { border-bottom: none; }
+    .security-key {
+      color: rgba(255,255,255,0.35);
       font-size: 10px;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--dim);
-      padding-top: 2px;
+      padding-top: 3px;
     }
-    .feature-val { color: var(--text); }
-    .feature-val strong { color: var(--white); font-weight: normal; }
-
-    /* PRICING */
-    .plans {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 8px;
-    }
-    @media (max-width: 480px) { .plans { grid-template-columns: 1fr; } }
-    .plan {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 24px;
-    }
-    .plan.pro { border-color: var(--accent); }
-    .plan-name {
-      font-size: 10px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--dim);
-      margin-bottom: 12px;
-    }
-    .plan.pro .plan-name { color: var(--accent); }
-    .plan-price {
-      font-size: 24px;
-      color: var(--white);
-      margin-bottom: 4px;
-    }
-    .plan-price span { font-size: 12px; color: var(--muted); }
-    .plan-items {
-      list-style: none;
-      margin-top: 16px;
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 2;
-    }
-    .plan-items li::before { content: '> '; color: var(--accent); }
-    .plan-items li.dim::before { color: #444488; }
-    .plan-items li.dim { color: #555599; }
+    .security-val { color: rgba(255,255,255,0.7); }
+    .security-val strong { color: #ffffff; font-weight: normal; }
 
     /* FOOTER */
     footer {
-      padding: 32px 0;
-      border-top: 1px solid var(--border);
+      padding: 36px 0;
+      border-top: 1px solid rgba(255,255,255,0.08);
     }
     footer .container {
       display: flex;
@@ -262,19 +237,23 @@
       flex-wrap: wrap;
       gap: 12px;
     }
-    .footer-note { font-size: 10px; color: var(--dim); }
+    .footer-note { font-size: 10px; color: rgba(255,255,255,0.25); letter-spacing: 0.05em; }
+
+    @media (max-width: 520px) {
+      .security-item { grid-template-columns: 1fr; gap: 6px; }
+      .step { grid-template-columns: 30px 1fr; }
+    }
   </style>
 </head>
 <body>
 
-  <!-- NAV -->
   <nav>
     <div class="container">
-      <span class="logo"><img src="/favicon.svg" alt="">Gutter</span>
+      <a class="logo" href="/"><img src="/favicon.svg" alt="">Gutter</a>
       <div class="nav-links">
-        <a href="#features">Features</a>
-        <a href="#pricing">Pricing</a>
-        <a href="/upgrade">Upgrade</a>
+        <a href="#how">How it works</a>
+        <a href="#security">Security</a>
+        <a href="/privacy">Privacy</a>
       </div>
     </div>
   </nav>
@@ -282,36 +261,38 @@
   <!-- HERO -->
   <section id="hero">
     <div class="container">
-      <div class="tag">Chrome Extension</div>
+      <span class="tag">Chrome Extension</span>
       <h1>Context without clutter.</h1>
       <p class="hero-sub">
-        You're reading. A term catches your eye. The urge to open a new tab creeps in —
+        You're reading. A term catches your eye — the urge to open a new tab creeps in,
         and you know where that leads.<br><br>
-        Gutter kills that friction. Alt+Click anything on the page.
-        Get a 2-sentence answer. Stay in flow.
+        Gutter kills that friction. Alt+Click any heading, bold text, or selected passage.
+        Get two sentences. Return to what you were doing.
       </p>
       <div class="cta-row">
-        <a class="btn" href="#" id="install-btn">Install Free — Chrome</a>
-        <a class="btn btn-ghost" href="#pricing">See Pricing</a>
+        <a class="btn" href="#" id="install-btn">Add to Chrome — Free</a>
+        <a class="btn btn-ghost" href="#how">See how it works</a>
       </div>
-      <p class="cta-note">15 free searches. No credit card required.</p>
+      <p class="cta-note">Bring your own Gemini API key. No subscription. No data sold.</p>
 
-      <!-- DEMO -->
       <div class="demo">
-        <span class="demo-label">Try It — Click Any Phrase</span>
+        <span class="demo-label">Live Demo — Click Any Underlined Phrase</span>
         <div class="demo-body">
-          During the <span class="demo-phrase" data-key="age-of-discovery">Age of Discovery</span>, European powers raced to map the globe and control its wealth.
-          <span class="demo-phrase" data-key="bartolomeu-dias">Bartolomeu Dias</span> first rounded the southern tip of Africa in 1488, proving a sea route to Asia existed,
-          before <span class="demo-phrase" data-key="vasco-da-gama">Vasco da Gama</span> completed the full voyage to India a decade later.
-          Armed with <span class="demo-phrase" data-key="astrolabe">the astrolabe</span> and the technique of <span class="demo-phrase" data-key="dead-reckoning">dead reckoning</span>,
-          Portuguese sailors navigated far beyond sight of land aboard <span class="demo-phrase" data-key="caravel">caravel ships</span> optimized for open ocean.
-          Their success dismantled the <span class="demo-phrase" data-key="ottoman">Ottoman Empire</span>'s grip on overland routes,
-          handing Portugal a monopoly over <span class="demo-phrase" data-key="spice-trade">the spice trade</span> — pepper, cloves, and
-          <span class="demo-phrase" data-key="nutmeg">nutmeg</span> worth more than gold in European markets.
-          <span class="demo-phrase" data-key="goa">Goa</span> became their nerve centre in Asia,
-          and <span class="demo-phrase" data-key="celestial-navigation">celestial navigation</span> the skill that made it all possible.
+          During the <span class="demo-phrase" data-key="age-of-discovery">Age of Discovery</span>,
+          European powers raced to map the globe and control its wealth.
+          <span class="demo-phrase" data-key="bartolomeu-dias">Bartolomeu Dias</span>
+          first rounded the southern tip of Africa in 1488, proving a sea route to Asia existed,
+          before <span class="demo-phrase" data-key="vasco-da-gama">Vasco da Gama</span>
+          completed the full voyage to India. Armed with
+          <span class="demo-phrase" data-key="dead-reckoning">dead reckoning</span> and
+          <span class="demo-phrase" data-key="astrolabe">the astrolabe</span>, Portuguese sailors
+          navigated far beyond sight of land aboard
+          <span class="demo-phrase" data-key="caravel">caravel ships</span>.
+          Their success dismantled the <span class="demo-phrase" data-key="ottoman">Ottoman Empire</span>'s
+          grip on overland routes, handing Portugal a monopoly over
+          <span class="demo-phrase" data-key="spice-trade">the spice trade</span>.
         </div>
-        <div class="demo-hint">// alt+click any underlined phrase to explain it</div>
+        <div class="demo-hint">// click any underlined phrase to see Gutter in action</div>
         <div class="demo-tooltip" id="demo-tooltip">
           <div class="demo-tooltip-label">Gutter</div>
           <div class="demo-tooltip-text" id="demo-tooltip-text"></div>
@@ -320,61 +301,53 @@
     </div>
   </section>
 
-  <!-- FEATURES -->
-  <section id="features">
+  <!-- HOW IT WORKS -->
+  <section id="how">
     <div class="container">
-      <div class="tag">Features</div>
-      <h2>How It Works</h2>
-      <div class="features">
-        <div class="feature">
-          <div class="feature-key">Trigger</div>
-          <div class="feature-val"><strong>Alt+Click</strong> any heading, bold text, or selected sentence on any webpage.</div>
+      <span class="tag">How it works</span>
+      <h2>Three steps. Zero friction.</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div class="step-text">
+            <strong>Install Gutter</strong> from the Chrome Web Store and open the extension options.
+            Sign in with Google and paste your Gemini API key — available free from Google AI Studio.
+          </div>
         </div>
-        <div class="feature">
-          <div class="feature-key">Response</div>
-          <div class="feature-val">Exactly <strong>2 sentences</strong>. What it is. Why it matters. Nothing else.</div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div class="step-text">
+            <strong>Alt+Click</strong> any heading, bold text, or selected passage on any webpage.
+            A tooltip appears inline — no new tab, no context switch.
+          </div>
         </div>
-        <div class="feature">
-          <div class="feature-key">Powered by</div>
-          <div class="feature-val">Google <strong>Gemini AI</strong> — fast, accurate, context-aware.</div>
-        </div>
-        <div class="feature">
-          <div class="feature-key">Works on</div>
-          <div class="feature-val">Wikipedia, Reddit, news articles, research papers, documentation — <strong>any site</strong>.</div>
-        </div>
-        <div class="feature">
-          <div class="feature-key">Privacy</div>
-          <div class="feature-val">Only the selected text is sent. <strong>No page tracking</strong>, no history stored.</div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div class="step-text">
+            Read <strong>two sentences</strong>. What it is. Why it matters.
+            The tooltip closes. You're back where you were.
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- PRICING -->
-  <section id="pricing">
+  <!-- SECURITY -->
+  <section id="security">
     <div class="container">
-      <div class="tag">Pricing</div>
-      <h2>Simple, Honest Pricing</h2>
-      <div class="plans">
-        <div class="plan">
-          <div class="plan-name">Free</div>
-          <div class="plan-price">₹0 <span>forever</span></div>
-          <ul class="plan-items">
-            <li>15 searches to try it</li>
-            <li>All features included</li>
-            <li>No card required</li>
-            <li class="dim">Unlimited searches</li>
-          </ul>
-        </div>
-        <div class="plan pro">
-          <div class="plan-name">Pro</div>
-          <div class="plan-price">₹400 <span>/ month</span></div>
-          <ul class="plan-items">
-            <li>Unlimited searches</li>
-            <li>All features included</li>
-            <li>Cancel anytime</li>
-            <li><a href="/upgrade">Subscribe now →</a></li>
-          </ul>
+      <span class="tag">Security &amp; Trust</span>
+      <h2>Your API key is yours.</h2>
+      <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:36px;max-width:560px;">
+        Gutter uses a bring-your-own-key model. You connect your own Gemini API key —
+        we never have access to your account or quota. Here is exactly what happens to your key.
+      </p>
+      <div class="security-grid">
+        <div class="security-item">
+          <div class="security-key">Encryption at rest</div>
+          <div class="security-val">
+            Your API key is encrypted with <strong>AES-256-GCM</strong> before being written to the database.
+            The raw key never touches storage.
+          </div>
         </div>
       </div>
     </div>
@@ -385,42 +358,34 @@
     <div class="container">
       <span class="footer-note">© 2026 Gutter. Context without clutter.</span>
       <div class="nav-links">
-        <a href="mailto:akarshansachan001@gmail.com" style="font-size:10px;color:#3a3a99;">Contact</a>
-        <a href="/privacy" style="font-size:10px;color:#3a3a99;">Privacy</a>
+        <a href="mailto:akarshansachan001@gmail.com" style="font-size:10px;color:rgba(255,255,255,0.25);text-decoration:none;">Contact</a>
+        <a href="/privacy" style="font-size:10px;color:rgba(255,255,255,0.25);text-decoration:none;">Privacy Policy</a>
       </div>
     </div>
   </footer>
 
   <script>
-    document.getElementById('install-btn').href =
-      '#'; // update with Gutter Chrome Web Store URL after publish
-
     const DEMO_ANSWERS = {
-      "age-of-discovery": "The Age of Discovery (1400s–1600s) was the period when European nations funded ocean expeditions to find new trade routes and territories beyond the known world. It resulted in European colonization of the Americas, Sub-Saharan Africa, and Asia, permanently reshaping global power, culture, and population through trade, conquest, and the spread of disease.",
-      "bartolomeu-dias": "Bartolomeu Dias was a Portuguese explorer who in 1488 became the first European to sail around the Cape of Good Hope at the southern tip of Africa, proving that the Atlantic and Indian Oceans were connected. His voyage laid the geographic foundation for all subsequent Portuguese expansion into Asia, though he never completed the full journey to India himself.",
+      "age-of-discovery": "The Age of Discovery (1400s–1600s) was the period when European nations funded ocean expeditions to find trade routes and territories beyond the known world. It resulted in European colonization of the Americas, Africa, and Asia, reshaping global power through trade, conquest, and the spread of disease.",
+      "bartolomeu-dias": "Bartolomeu Dias was a Portuguese explorer who in 1488 became the first European to sail around the Cape of Good Hope, proving the Atlantic and Indian Oceans were connected. His voyage laid the foundation for all subsequent Portuguese expansion into Asia, though he never completed the full journey to India himself.",
       "vasco-da-gama": "Vasco da Gama was a Portuguese explorer who in 1497–99 completed the first direct sea voyage from Europe to India, crossing the Indian Ocean after rounding Africa. His route broke the Arab and Ottoman monopoly on the spice trade and established Portugal as the dominant maritime power in Asia for the next century.",
+      "dead-reckoning": "Dead reckoning is a navigation method where sailors estimate their current position by tracking speed, compass direction, and time elapsed from a fixed starting point. It was the primary navigation technique before GPS, but errors compounded over long voyages, making it dangerously imprecise on multi-month open-ocean journeys.",
       "astrolabe": "The astrolabe is an ancient astronomical instrument that measures the altitude of the sun or stars above the horizon, allowing navigators to calculate their latitude at sea. Portuguese sailors adapted the marine astrolabe in the 15th century, making it possible to venture far into open ocean and still determine position with reasonable accuracy.",
-      "dead-reckoning": "Dead reckoning is a navigation method where sailors estimate their current position by tracking their known speed, compass direction, and time elapsed from a fixed starting point. It was the primary navigation technique before GPS, but errors compounded over long voyages, making it dangerously imprecise on multi-month open-ocean journeys.",
-      "caravel": "The caravel was a small, highly maneuverable sailing ship developed by the Portuguese in the 15th century, featuring lateen (triangular) sails that allowed it to sail closer into the wind than any previous design. Its shallow draft and agility made it ideal for both exploring unknown coastlines and making long Atlantic crossings, directly enabling the Age of Discovery.",
-      "ottoman": "The Ottoman Empire was a Turkish Islamic state that ruled from 1299 to 1922, at its height controlling Southeast Europe, Western Asia, and North Africa from its capital Constantinople. Its dominance over overland trade routes between Europe and Asia effectively taxed European access to Eastern goods, which directly motivated Portugal and Spain to seek ocean routes to bypass it.",
-      "spice-trade": "The spice trade was a network of land and sea routes that carried cinnamon, pepper, cloves, and nutmeg from South and Southeast Asia to Europe, where these goods were worth extraordinary sums for preserving food and masking spoilage. Control of this trade was the central economic motivation behind nearly every major European colonial expedition from the 1400s through the 1700s.",
-      "nutmeg": "Nutmeg is a spice derived from the seed of the Myristica fragrans tree, native to the Banda Islands of Indonesia, and was so scarce in medieval Europe that it was literally worth more than gold by weight. European powers fought wars and committed atrocities specifically to control its supply — the Dutch massacred nearly the entire population of the Banda Islands in 1621 to monopolize the trade.",
-      "goa": "Goa is a state on the western coast of India that was captured by Portugal in 1510 and remained a Portuguese colony for 450 years until India annexed it in 1961. It served as the headquarters of Portugal's entire Eastern trading empire and the main hub through which Asian spices, textiles, and porcelain flowed back to Europe.",
-      "celestial-navigation": "Celestial navigation is the practice of determining one's geographic position by measuring the angles between celestial bodies — the sun, moon, stars — and the horizon using instruments like the sextant. It was the only reliable method for open-ocean position-finding for 400 years, from the Age of Discovery until electronic navigation replaced it in the 20th century."
+      "caravel": "The caravel was a small, highly maneuverable sailing ship developed by the Portuguese in the 15th century, featuring lateen sails that allowed it to sail closer into the wind than any previous design. Its shallow draft and agility made it ideal for exploring unknown coastlines and crossing the Atlantic, directly enabling the Age of Discovery.",
+      "ottoman": "The Ottoman Empire was a Turkish Islamic state that ruled from 1299 to 1922, at its height controlling Southeast Europe, Western Asia, and North Africa. Its dominance over overland trade routes between Europe and Asia effectively taxed European access to Eastern goods, directly motivating Portugal and Spain to seek ocean routes to bypass it.",
+      "spice-trade": "The spice trade was a network of routes carrying cinnamon, pepper, cloves, and nutmeg from South and Southeast Asia to Europe, where these goods were worth extraordinary sums for preserving food. Control of this trade was the central economic motivation behind nearly every major European colonial expedition from the 1400s through the 1700s."
     };
 
     const tooltip = document.getElementById('demo-tooltip');
     const tooltipText = document.getElementById('demo-tooltip-text');
-    let activePhrase = null;
+    let active = null;
 
     document.querySelectorAll('.demo-phrase').forEach(el => {
-      el.addEventListener('click', function(e) {
-        if (!e.altKey) return;
-        const key = this.dataset.key;
-        if (activePhrase) activePhrase.classList.remove('active');
+      el.addEventListener('click', function() {
+        if (active) active.classList.remove('active');
         this.classList.add('active');
-        activePhrase = this;
-        tooltipText.textContent = DEMO_ANSWERS[key];
+        active = this;
+        tooltipText.textContent = DEMO_ANSWERS[this.dataset.key];
         tooltip.classList.add('visible');
       });
     });

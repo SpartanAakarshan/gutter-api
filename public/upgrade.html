@@ -8,106 +8,146 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: #03030f;
-      color: #b8b8ff;
+      background: #000000;
+      color: rgba(255,255,255,0.6);
       font-family: 'Courier New', Courier, monospace;
       min-height: 100vh;
       display: flex;
+      flex-direction: column;
+    }
+    a { color: #ffffff; }
+    a:hover { opacity: 0.6; }
+    nav { border-bottom: 1px solid rgba(255,255,255,0.1); padding: 18px 0; }
+    nav .container { display: flex; align-items: center; }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase;
+      color: #ffffff; text-decoration: none;
+    }
+    .logo img { width: 22px; height: 22px; }
+    .container { max-width: 620px; margin: 0 auto; padding: 0 24px; }
+    main {
+      flex: 1;
+      display: flex;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 64px 24px;
     }
     .card {
       width: 100%;
       max-width: 400px;
-      border: 1px solid #4a4aff;
-      padding: 32px;
-      box-shadow: 0 0 16px rgba(80,80,255,0.3), 0 0 40px rgba(50,50,200,0.1);
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 36px;
     }
-    .title {
-      font-size: 11px;
-      letter-spacing: 0.25em;
-      color: #6666ff;
+    .tag {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
-      margin-bottom: 24px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid #1e1e6e;
+      color: rgba(255,255,255,0.25);
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
     .price {
-      font-size: 28px;
+      font-size: 32px;
       color: #ffffff;
       margin-bottom: 4px;
+      font-weight: normal;
     }
-    .price span { font-size: 13px; color: #5555cc; }
+    .price span {
+      font-size: 13px;
+      color: rgba(255,255,255,0.3);
+    }
     .features {
-      margin: 20px 0;
+      margin: 24px 0;
       list-style: none;
       font-size: 12px;
-      color: #8888cc;
-      line-height: 2;
+      color: rgba(255,255,255,0.45);
+      line-height: 2.2;
     }
-    .features li::before { content: '> '; color: #4a4aff; }
+    .features li::before { content: '— '; color: rgba(255,255,255,0.2); }
     label {
       display: block;
       font-size: 10px;
       letter-spacing: 0.15em;
-      color: #5555cc;
+      color: rgba(255,255,255,0.3);
       text-transform: uppercase;
-      margin-bottom: 6px;
-      margin-top: 20px;
+      margin-bottom: 8px;
+      margin-top: 24px;
     }
     input {
       width: 100%;
-      background: #000008;
-      border: 1px solid #2a2a88;
-      color: #b8b8ff;
+      background: #000000;
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #ffffff;
       font-family: 'Courier New', Courier, monospace;
       font-size: 12px;
-      padding: 10px;
+      padding: 10px 12px;
       outline: none;
     }
-    input:focus { border-color: #4a4aff; }
+    input::placeholder { color: rgba(255,255,255,0.2); }
+    input:focus { border-color: rgba(255,255,255,0.5); }
     button {
       width: 100%;
       margin-top: 20px;
-      background: #1a1a6e;
-      border: 1px solid #6666ff;
-      color: #b8b8ff;
+      background: #ffffff;
+      border: none;
+      color: #000000;
       font-family: 'Courier New', Courier, monospace;
-      font-size: 12px;
-      letter-spacing: 0.1em;
+      font-size: 11px;
+      letter-spacing: 0.15em;
       text-transform: uppercase;
-      padding: 12px;
+      padding: 13px;
       cursor: pointer;
     }
-    button:hover { background: #2a2a99; }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    button:hover { background: rgba(255,255,255,0.85); }
+    button:disabled { opacity: 0.35; cursor: not-allowed; }
     #status {
-      margin-top: 16px;
+      margin-top: 14px;
       font-size: 11px;
       min-height: 16px;
+      color: rgba(255,255,255,0.5);
     }
-    .ok  { color: #44aa44; }
-    .err { color: #cc4444; }
+    .ok  { color: rgba(255,255,255,0.8) !important; }
+    .err { color: rgba(255,80,80,0.9)   !important; }
+    footer { padding: 28px 0; border-top: 1px solid rgba(255,255,255,0.06); font-size: 10px; color: rgba(255,255,255,0.2); }
+    footer .container { display: flex; justify-content: space-between; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="title">Gutter // Upgrade</div>
-    <div class="price">₹400 <span>/ month</span></div>
-    <ul class="features">
-      <li>Unlimited searches</li>
-      <li>All websites + bold text</li>
-      <li>Text selection support</li>
-      <li>Cancel anytime</li>
-    </ul>
 
-    <label>Email (used to activate your account)</label>
-    <input type="email" id="email" placeholder="you@example.com" />
+  <nav>
+    <div class="container">
+      <a class="logo" href="/"><img src="/favicon.svg" alt="">Gutter</a>
+    </div>
+  </nav>
 
-    <button id="pay-btn">Subscribe Now</button>
-    <div id="status"></div>
-  </div>
+  <main>
+    <div class="card">
+      <span class="tag">Gutter // Upgrade</span>
+      <div class="price">₹200 <span>/ month</span></div>
+      <ul class="features">
+        <li>Unlimited searches</li>
+        <li>Your own AI provider key</li>
+        <li>All websites supported</li>
+        <li>Cancel anytime</li>
+      </ul>
+
+      <label>Email</label>
+      <input type="email" id="email" placeholder="you@example.com" />
+
+      <button id="pay-btn">Subscribe — ₹200/mo</button>
+      <div id="status"></div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <span>© 2026 Gutter.</span>
+      <a href="/privacy" style="color:rgba(255,255,255,0.2);text-decoration:none;">Privacy</a>
+    </div>
+  </footer>
 
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script>
@@ -145,11 +185,11 @@
           key: data.key_id,
           subscription_id: data.subscription_id,
           name: 'Gutter',
-          description: 'Pro Plan — Unlimited Searches',
+          description: 'Unlimited searches — ₹200/month',
           prefill: { email },
-          theme: { color: '#4a4aff' },
+          theme: { color: '#ffffff' },
           handler: function() {
-            status.textContent = 'Payment successful! Your account will be upgraded within seconds.';
+            status.textContent = 'Payment successful. Account upgraded within seconds.';
             status.className = 'ok';
             btn.disabled = true;
           },

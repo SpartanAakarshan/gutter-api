@@ -3,163 +3,77 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Privacy Policy — Curiosity Pointer</title>
+  <title>Privacy Policy — Gutter</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <style>
-    :root {
-      --bg:      #03030f;
-      --surface: #0a0a20;
-      --border:  #2a2a7a;
-      --accent:  #6e6eff;
-      --dim:     #8888cc;
-      --text:    #d4d4ff;
-      --muted:   #aaaadd;
-      --white:   #ffffff;
-    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: var(--bg);
-      color: var(--text);
+      background: #000000;
+      color: rgba(255,255,255,0.6);
       font-family: 'Courier New', Courier, monospace;
       font-size: 14px;
       line-height: 1.9;
     }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    nav {
-      border-bottom: 1px solid var(--border);
-      padding: 16px 0;
-    }
-    nav .container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
+    a { color: #ffffff; }
+    a:hover { opacity: 0.6; }
+    .container { max-width: 620px; margin: 0 auto; padding: 0 24px; }
+    nav { border-bottom: 1px solid rgba(255,255,255,0.1); padding: 18px 0; }
+    nav .container { display: flex; align-items: center; }
     .logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 11px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--accent);
-      text-decoration: none;
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase;
+      color: #ffffff; text-decoration: none;
     }
-    .logo img { width: 24px; height: 24px; border-radius: 5px; }
-    .container {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 0 24px;
-    }
+    .logo img { width: 22px; height: 22px; }
     section { padding: 64px 0; }
-    .tag {
-      display: inline-block;
-      font-size: 10px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--dim);
-      margin-bottom: 20px;
-    }
-    .tag::before { content: '// '; }
-    h1 {
-      font-size: 24px;
-      color: var(--white);
-      margin-bottom: 8px;
-    }
-    .updated {
-      font-size: 11px;
-      color: var(--dim);
-      margin-bottom: 48px;
-    }
-    h2 {
-      font-size: 13px;
-      color: var(--white);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-top: 40px;
-      margin-bottom: 12px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--border);
-    }
-    p { color: var(--muted); margin-bottom: 16px; }
-    ul {
-      color: var(--muted);
-      margin-bottom: 16px;
-      padding-left: 0;
-      list-style: none;
-    }
-    ul li::before { content: '> '; color: var(--accent); }
-    footer {
-      padding: 32px 0;
-      border-top: 1px solid var(--border);
-      font-size: 10px;
-      color: var(--dim);
-    }
+    .tag { display: block; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.25); margin-bottom: 16px; }
+    h1 { font-size: 22px; color: #ffffff; margin-bottom: 6px; font-weight: normal; }
+    .updated { font-size: 11px; color: rgba(255,255,255,0.2); margin-bottom: 48px; }
+    h2 { font-size: 11px; color: rgba(255,255,255,0.5); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 36px; margin-bottom: 10px; font-weight: normal; }
+    p { color: rgba(255,255,255,0.55); margin-bottom: 12px; font-size: 13px; }
+    strong { color: rgba(255,255,255,0.85); font-weight: normal; }
+    footer { padding: 32px 0; border-top: 1px solid rgba(255,255,255,0.06); font-size: 10px; color: rgba(255,255,255,0.2); }
+    footer .container { display: flex; justify-content: space-between; }
   </style>
 </head>
 <body>
 
   <nav>
     <div class="container">
-      <a class="logo" href="/"><img src="/icon.svg" alt="">Curiosity Pointer</a>
+      <a class="logo" href="/"><img src="/favicon.svg" alt="">Gutter</a>
     </div>
   </nav>
 
   <section>
     <div class="container">
-      <div class="tag">Legal</div>
+      <span class="tag">Legal</span>
       <h1>Privacy Policy</h1>
-      <div class="updated">Last updated: May 3, 2026</div>
+      <div class="updated">Last updated: May 4, 2026</div>
 
       <h2>What We Collect</h2>
-      <p>Curiosity Pointer collects only what is strictly necessary to operate the service:</p>
-      <ul>
-        <li>Your email address and hashed password (for account creation and login)</li>
-        <li>The selected text you Alt+Click (sent to our server to generate an explanation)</li>
-        <li>A count of how many explanations you have requested (for usage tracking)</li>
-      </ul>
+      <p>Your Google account email, and an encrypted copy of your API key if you provide one. The text you Alt+Click is sent to the AI provider to generate a response and immediately discarded — we never store it.</p>
 
-      <h2>What We Do Not Collect</h2>
-      <ul>
-        <li>We do not track which websites you visit</li>
-        <li>We do not store your browsing history</li>
-        <li>We do not read any page content beyond the text you explicitly select</li>
-        <li>We do not sell or share your data with third parties for advertising</li>
-      </ul>
+      <h2>What We Don't Collect</h2>
+      <p>We do not track the websites you visit, store your browsing history, read page content beyond what you select, or sell your data to anyone.</p>
 
-      <h2>How Your Data Is Used</h2>
-      <p>Selected text is sent to our backend server, which forwards it to the Google Gemini API to generate a 2-sentence explanation. The text is not stored after the response is returned. Your email is used solely to identify your account and deliver the service.</p>
+      <h2>Your API Key</h2>
+      <p>If you add your own API key, it is encrypted with <strong>AES-256-GCM</strong> before storage. We cannot read your plaintext key. It is decrypted only in memory at the moment it is used, then released. You can delete it at any time from the extension options.</p>
 
       <h2>Third-Party Services</h2>
-      <p>We use the following services to operate Curiosity Pointer:</p>
-      <ul>
-        <li><strong style="color:var(--white);font-weight:normal;">Supabase</strong> — authentication and account storage</li>
-        <li><strong style="color:var(--white);font-weight:normal;">Google Gemini API</strong> — AI explanation generation</li>
-        <li><strong style="color:var(--white);font-weight:normal;">Upstash Redis</strong> — rate limiting (request counts, not content)</li>
-        <li><strong style="color:var(--white);font-weight:normal;">Razorpay</strong> — payment processing (Pro plan)</li>
-        <li><strong style="color:var(--white);font-weight:normal;">Vercel</strong> — hosting and serverless functions</li>
-      </ul>
-      <p>Each service operates under its own privacy policy. We do not control how they handle data beyond what we send them.</p>
+      <p>Gutter uses <strong>Supabase</strong> for authentication, <strong>Vercel</strong> for hosting, and your chosen AI provider (Gemini, OpenAI, Claude, or Grok) to generate responses. Each operates under their own privacy policy.</p>
 
-      <h2>Data Storage and Security</h2>
-      <p>Your account data is stored in Supabase with industry-standard encryption. Your auth token is stored locally in your browser's extension storage, which is sandboxed and inaccessible to other extensions or websites. We use HTTPS for all data in transit.</p>
-
-      <h2>Data Retention</h2>
-      <p>Your account and usage data are retained for as long as your account is active. You may request deletion of your account and all associated data at any time by emailing us.</p>
-
-      <h2>Children's Privacy</h2>
-      <p>Curiosity Pointer is not directed at children under 13. We do not knowingly collect data from children under 13.</p>
-
-      <h2>Changes to This Policy</h2>
-      <p>We may update this policy as the product evolves. Significant changes will be communicated via email. Continued use of the extension constitutes acceptance of the updated policy.</p>
+      <h2>Data Deletion</h2>
+      <p>Remove your API key anytime via extension options. To delete your account entirely, email us and we'll remove all records within 7 days.</p>
 
       <h2>Contact</h2>
-      <p>Questions or data requests: <a href="mailto:akarshansachan001@gmail.com">akarshansachan001@gmail.com</a></p>
+      <p><a href="mailto:akarshansachan001@gmail.com">akarshansachan001@gmail.com</a></p>
     </div>
   </section>
 
   <footer>
     <div class="container">
-      © 2026 Curiosity Pointer. <a href="/">Home</a>
+      <span>© 2026 Gutter.</span>
+      <a href="/" style="color:rgba(255,255,255,0.2);text-decoration:none;">Home</a>
     </div>
   </footer>
 

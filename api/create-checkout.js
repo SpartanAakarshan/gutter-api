@@ -45,7 +45,6 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ subscription_id: data.id, key_id: KEY_ID });
   } catch (err) {
-    console.error('[Gutter] checkout error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 }
