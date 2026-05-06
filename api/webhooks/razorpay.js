@@ -15,8 +15,14 @@ function getRawBody(req) {
   });
 }
 
+function fetchWithTimeout(url, options, ms = 7000) {
+  const ctrl = new AbortController();
+  const id = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { ...options, signal: ctrl.signal }).finally(() => clearTimeout(id));
+}
+
 async function getUserByEmail(email) {
-  const r = await fetch(
+  const r = await fetchWithTimeout(
     `${SUPABASE_URL}/auth/v1/admin/users?email=${encodeURIComponent(email)}`,
     {
       headers: {
@@ -25,7 +31,8 @@ async function getUserByEmail(email) {
       }
     }
   );
-  const data = await r.json();
+  if (!r.ok) return null;
+  const data = await r.json().catch(() => null);
   return data?.users?.[0] ?? null;
 }
 
@@ -33,7 +40,7 @@ async function setUserPlan(userId, plan, subscriptionId = null) {
   const body = { plan };
   if (subscriptionId) body.subscription_id = subscriptionId;
 
-  await fetch(
+  await fetchWithTimeout(
     `${SUPABASE_URL}/rest/v1/users_usage?user_id=eq.${userId}`,
     {
       method: 'PATCH',
@@ -58,7 +65,14 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Invalid signature' });
   }
 
-  const { event, payload } = JSON.parse(rawBody);
+  let parsed;
+  try {
+    parsed = JSON.parse(rawBody);
+  } catch {
+    return res.status(400).json({ error: 'Invalid JSON' });
+  }
+
+  const { event, payload } = parsed;
   const subscription = payload?.subscription?.entity;
   const email        = subscription?.notes?.email;
 

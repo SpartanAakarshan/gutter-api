@@ -153,11 +153,18 @@
   <script>
     const btn    = document.getElementById('pay-btn');
     const status = document.getElementById('status');
+    const token  = new URLSearchParams(location.search).get('t') ?? '';
 
     btn.addEventListener('click', async () => {
       const email = document.getElementById('email').value.trim();
       if (!email || !email.includes('@')) {
         status.textContent = 'Enter a valid email.';
+        status.className = 'err';
+        return;
+      }
+
+      if (!token) {
+        status.textContent = 'Session missing. Open the upgrade link from the extension.';
         status.className = 'err';
         return;
       }
@@ -169,7 +176,7 @@
       try {
         const res  = await fetch('/api/create-checkout', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({ email })
         });
         const data = await res.json();
