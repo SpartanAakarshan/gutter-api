@@ -146,12 +146,24 @@ async function callGrok(apiKey, text) {
   return data?.choices?.[0]?.message?.content ?? '';
 }
 
-async function callAI(provider, apiKey, text) {
+function buildDeepDivePrompt(text, meta) {
+  const cap = (s) => (s ?? '').trim().slice(0, 200);
+  const parts = [];
+  if (cap(meta.title))    parts.push(`Page: ${cap(meta.title)}`);
+  if (cap(meta.h1))       parts.push(`H1: ${cap(meta.h1)}`);
+  if (cap(meta.metaDesc)) parts.push(`Description: ${cap(meta.metaDesc)}`);
+  if (cap(meta.ogDesc))   parts.push(`OG: ${cap(meta.ogDesc)}`);
+  const context = parts.join(' | ');
+  return `Context: ${context} | User Request: Explain "${text}" specifically within the scope of this page context.`;
+}
+
+async function callAI(provider, apiKey, text, meta = null) {
+  const prompt = meta ? buildDeepDivePrompt(text, meta) : text;
   switch (provider) {
-    case 'gemini': return callGemini(apiKey, text);
-    case 'openai': return callOpenAI(apiKey, text);
-    case 'claude': return callClaude(apiKey, text);
-    case 'grok':   return callGrok(apiKey, text);
+    case 'gemini': return callGemini(apiKey, prompt);
+    case 'openai': return callOpenAI(apiKey, prompt);
+    case 'claude': return callClaude(apiKey, prompt);
+    case 'grok':   return callGrok(apiKey, prompt);
     default: throw new Error(`Unknown provider: ${provider}`);
   }
 }
@@ -170,9 +182,12 @@ export default async function handler(req, res) {
     const user = await getUser(token);
     if (!user?.id) return res.status(401).json({ error: 'Invalid session' });
 
-    const text = typeof req.body === 'object' ? req.body?.text : JSON.parse(req.body ?? '{}').text;
+    const body = typeof req.body === 'object' ? req.body : JSON.parse(req.body ?? '{}');
+    const text = body?.text;
     if (!text || typeof text !== 'string') return res.status(400).json({ error: 'No text provided' });
     if (text.length > 2000) return res.status(400).json({ error: 'Text too long' });
+
+    const meta = (body?.meta && typeof body.meta === 'object') ? body.meta : null;
 
     const apiKeyData = await getUserApiKey(user.id);
 
@@ -209,7 +224,7 @@ export default async function handler(req, res) {
       remaining = FREE_LIMIT - count;
     }
 
-    const result = await callAI(provider, apiKey, text);
+    const result = await callAI(provider, apiKey, text, meta);
     if (!result) return res.status(502).json({ error: 'Empty response from AI' });
 
     return res.status(200).json({ result, ...(remaining !== null && { remaining }) });
