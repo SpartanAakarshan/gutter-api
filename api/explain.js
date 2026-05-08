@@ -1,8 +1,22 @@
-import { createDecipheriv } from 'crypto';
-import { Redis } from '@upstash/redis';
+import { generateText } from 'ai';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { createOpenAI }             from '@ai-sdk/openai';
+import { createAnthropic }          from '@ai-sdk/anthropic';
+import { createXai }                from '@ai-sdk/xai';
+import { createDecipheriv }         from 'crypto';
+import { Redis }                    from '@upstash/redis';
 
 const FREE_LIMIT = 20;
 
+// ── Provider model IDs ────────────────────────────────────────────────────────
+const MODELS = {
+  gemini: 'gemini-2.5-flash-lite',
+  openai: 'gpt-4o-mini',
+  claude: 'claude-haiku-4.5',
+  grok:   'grok-3-mini',
+};
+
+// ── Decryption ────────────────────────────────────────────────────────────────
 function decrypt(ciphertext) {
   const parts = (ciphertext ?? '').split(':');
   if (parts.length !== 3 || parts.some(p => !p)) throw new Error('Malformed ciphertext');
@@ -13,6 +27,7 @@ function decrypt(ciphertext) {
   return Buffer.concat([decipher.update(Buffer.from(encHex, 'hex')), decipher.final()]).toString('utf8');
 }
 
+// ── Supabase ──────────────────────────────────────────────────────────────────
 const SUPABASE_URL  = process.env.SUPABASE_URL;
 const SUPABASE_ANON = process.env.SUPABASE_ANON_KEY;
 
@@ -60,93 +75,18 @@ async function getUserApiKey(userId) {
   return { key: decrypt(row.encrypted_key), provider: row.provider };
 }
 
-async function callGemini(apiKey, text) {
-  const res = await fetchWithTimeout(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-        contents: [{ parts: [{ text }] }],
-        generationConfig: { thinkingConfig: { thinkingBudget: 0 } }
-      })
-    },
-    20000
-  );
-  if (!res.ok) throw new Error((await res.text().catch(() => res.status.toString())).slice(0, 120));
-  const data = await res.json();
-  return data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+// ── AI model factory ──────────────────────────────────────────────────────────
+function getModel(provider, apiKey) {
+  switch (provider) {
+    case 'gemini': return createGoogleGenerativeAI({ apiKey })(MODELS.gemini);
+    case 'openai': return createOpenAI({ apiKey })(MODELS.openai);
+    case 'claude': return createAnthropic({ apiKey })(MODELS.claude);
+    case 'grok':   return createXai({ apiKey })(MODELS.grok);
+    default: throw new Error(`Unknown provider: ${provider}`);
+  }
 }
 
-async function callOpenAI(apiKey, text) {
-  const res = await fetchWithTimeout(
-    'https://api.openai.com/v1/chat/completions',
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        max_tokens: 256,
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user',   content: text }
-        ]
-      })
-    },
-    20000
-  );
-  if (!res.ok) throw new Error((await res.text().catch(() => res.status.toString())).slice(0, 120));
-  const data = await res.json();
-  return data?.choices?.[0]?.message?.content ?? '';
-}
-
-async function callClaude(apiKey, text) {
-  const res = await fetchWithTimeout(
-    'https://api.anthropic.com/v1/messages',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 256,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: text }]
-      })
-    },
-    20000
-  );
-  if (!res.ok) throw new Error((await res.text().catch(() => res.status.toString())).slice(0, 120));
-  const data = await res.json();
-  return data?.content?.[0]?.text ?? '';
-}
-
-async function callGrok(apiKey, text) {
-  const res = await fetchWithTimeout(
-    'https://api.x.ai/v1/chat/completions',
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-      body: JSON.stringify({
-        model: 'grok-3-mini',
-        max_tokens: 256,
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user',   content: text }
-        ]
-      })
-    },
-    20000
-  );
-  if (!res.ok) throw new Error((await res.text().catch(() => res.status.toString())).slice(0, 120));
-  const data = await res.json();
-  return data?.choices?.[0]?.message?.content ?? '';
-}
-
+// ── Deep Dive prompt ──────────────────────────────────────────────────────────
 function buildDeepDivePrompt(text, meta) {
   const cap = (s) => (s ?? '').trim().slice(0, 200);
   const parts = [];
@@ -154,21 +94,26 @@ function buildDeepDivePrompt(text, meta) {
   if (cap(meta.h1))       parts.push(`H1: ${cap(meta.h1)}`);
   if (cap(meta.metaDesc)) parts.push(`Description: ${cap(meta.metaDesc)}`);
   if (cap(meta.ogDesc))   parts.push(`OG: ${cap(meta.ogDesc)}`);
-  const context = parts.join(' | ');
-  return `Context: ${context} | User Request: Explain "${text}" specifically within the scope of this page context.`;
+  return `Context: ${parts.join(' | ')} | User Request: Explain "${text}" specifically within the scope of this page context.`;
 }
 
+// ── Core AI call ──────────────────────────────────────────────────────────────
 async function callAI(provider, apiKey, text, meta = null) {
   const prompt = meta ? buildDeepDivePrompt(text, meta) : text;
-  switch (provider) {
-    case 'gemini': return callGemini(apiKey, prompt);
-    case 'openai': return callOpenAI(apiKey, prompt);
-    case 'claude': return callClaude(apiKey, prompt);
-    case 'grok':   return callGrok(apiKey, prompt);
-    default: throw new Error(`Unknown provider: ${provider}`);
-  }
+  const model  = getModel(provider, apiKey);
+
+  const { text: result } = await generateText({
+    model,
+    system:     SYSTEM_PROMPT,
+    prompt,
+    maxTokens:  256,
+    abortSignal: AbortSignal.timeout(20000),
+  });
+
+  return result;
 }
 
+// ── Handler ───────────────────────────────────────────────────────────────────
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -195,17 +140,15 @@ export default async function handler(req, res) {
     let provider, apiKey, remaining = null;
 
     if (apiKeyData) {
-      // User has own key — unlimited
       provider = apiKeyData.provider;
       apiKey   = apiKeyData.key;
     } else {
-      // Free tier — rate limit against owner's Gemini key
       const redis = new Redis({
         url:   process.env.UPSTASH_REDIS_REST_URL,
         token: process.env.UPSTASH_REDIS_REST_TOKEN
       });
 
-      const date    = new Date().toISOString().slice(0, 10); // YYYY-MM-DD UTC
+      const date     = new Date().toISOString().slice(0, 10);
       const redisKey = `free:${user.id}:${date}`;
 
       const pipe = redis.pipeline();
@@ -215,7 +158,7 @@ export default async function handler(req, res) {
 
       if (count > FREE_LIMIT) {
         return res.status(429).json({
-          error: 'NO_API_KEY',
+          error:   'NO_API_KEY',
           message: `You've hit the daily limit. Add your API key in options — it's free to get one.`
         });
       }
