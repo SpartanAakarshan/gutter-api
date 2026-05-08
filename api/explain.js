@@ -68,7 +68,8 @@ async function callGemini(apiKey, text) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-        contents: [{ parts: [{ text }] }]
+        contents: [{ parts: [{ text }] }],
+        generationConfig: { thinkingConfig: { thinkingBudget: 0 } }
       })
     },
     20000
